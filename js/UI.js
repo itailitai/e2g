@@ -11,7 +11,7 @@ export class UI {
     const sidebar = document.createElement("div");
     const view_3d = document.createElement("div");
     const img_3d = document.createElement("img");
-    img_3d.src = "../assets/icons/3d_view.png";
+    img_3d.src = "assets/icons/3d_view.png";
     view_3d.appendChild(img_3d);
     view_3d.classList.add("button");
     view_3d.id = "view_3d";
@@ -19,7 +19,7 @@ export class UI {
     view_2d.id = "view_2d";
     view_2d.classList.add("button");
     const img_2d = document.createElement("img");
-    img_2d.src = "../assets/icons/2d_view.png";
+    img_2d.src = "assets/icons/2d_view.png";
     view_2d.appendChild(img_2d);
     sidebar.classList.add("leftsidebar");
     // Customize sidebar style and content as needed
