@@ -1,3 +1,22 @@
+const createButton = (id, imgSrc, tooltipContent, clickHandler, sidebar) => {
+  const button = document.createElement("div");
+  button.id = id;
+  button.classList.add("button");
+
+  const img = document.createElement("img");
+  img.src = imgSrc;
+  button.appendChild(img);
+
+  sidebar.appendChild(button);
+
+  button.addEventListener("click", clickHandler);
+  tippy(button, {
+    content: tooltipContent,
+    arrow: true,
+    placement: "right",
+  });
+};
+
 export class UI {
   constructor(engine) {
     this.engine = engine;
@@ -9,41 +28,39 @@ export class UI {
 
   createLeftSidebar() {
     const sidebar = document.createElement("div");
-    const view_3d = document.createElement("div");
-    const img_3d = document.createElement("img");
-    img_3d.src = "assets/icons/3d_view.png";
-    view_3d.appendChild(img_3d);
-    view_3d.classList.add("button");
-    view_3d.id = "view_3d";
-    const view_2d = document.createElement("div");
-    view_2d.id = "view_2d";
-    view_2d.classList.add("button");
-    const img_2d = document.createElement("img");
-    img_2d.src = "assets/icons/2d_view.png";
-    view_2d.appendChild(img_2d);
     sidebar.classList.add("leftsidebar");
-    // Customize sidebar style and content as needed
-    // Example: sidebar.textContent = 'Sidebar Content';
-    sidebar.appendChild(view_3d);
-    sidebar.appendChild(view_2d);
-    document.body.appendChild(sidebar);
+    createButton(
+      "move_mode",
+      "../assets/icons/move_mode.png",
+      "Move Mode",
+      () => this.engine.controls.enableMoveMode(),
+      sidebar
+    );
+    createButton(
+      "select_mode",
+      "../assets/icons/select_mode.png",
+      "Select Mode",
+      () => this.engine.controls.enableSelectMode(),
+      sidebar
+    );
 
-    view_3d.addEventListener("click", () => {
-      this.engine.camera.set2DMode(false);
-    });
-    view_2d.addEventListener("click", () => {
-      this.engine.camera.set2DMode(true);
-    });
-    tippy(view_2d, {
-      content: "2D View",
-      arrow: true,
-      placement: "right",
-    });
-    tippy(view_3d, {
-      content: "3D View",
-      arrow: true,
-      placement: "right",
-    });
+    createButton(
+      "view_3d",
+      "../assets/icons/3d_view.png",
+      "3D View",
+      () => this.engine.camera.set2DMode(false),
+      sidebar
+    );
+
+    createButton(
+      "view_2d",
+      "../assets/icons/2d_view.png",
+      "2D View",
+      () => this.engine.camera.set2DMode(true),
+      sidebar
+    );
+
+    document.body.appendChild(sidebar);
   }
 
   createRightSidebar() {

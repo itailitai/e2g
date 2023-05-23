@@ -1,5 +1,5 @@
-import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import * as THREE from "three";
 
 export class Camera {
   constructor(scene, width, height, renderer) {
@@ -28,17 +28,13 @@ export class Camera {
 
     this.orbitControls = new OrbitControls(this.camera3D, renderer.domElement);
     this.orbitControls.update();
+    this.orbitControls.enableZoom = false;
 
     // Initialize the current camera as the 2D camera
     this.currentCamera = this.camera2D;
     this.is2DMode = true;
     this.mouseDragStart = new THREE.Vector2(); // Mouse drag start position
     this.cameraDragStart = new THREE.Vector3(); // Camera drag start position
-
-    // Attach mouse event listeners
-    document.addEventListener("mousedown", this.onMouseDown.bind(this));
-    document.addEventListener("mousemove", this.onMouseMove.bind(this));
-    document.addEventListener("wheel", this.handleMouseScroll.bind(this));
 
     // Add the current camera to the scene
     this.scene.add(this.currentCamera);

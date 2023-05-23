@@ -3,7 +3,9 @@ import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import { Camera } from "./camera.js";
+import { Controls } from "./Controls.js";
 import { UI } from "./UI.js";
+
 export class Engine {
   constructor() {
     this.scene = new THREE.Scene();
@@ -14,7 +16,7 @@ export class Engine {
       document.body.clientHeight
     );
     this.camera = new Camera(this.scene, 16, 9, this.renderer);
-
+    this.controls = new Controls(this, this.camera);
     console.log(this.camera);
     document.body.appendChild(this.renderer.domElement);
 
