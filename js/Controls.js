@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { TransformControls } from "three/addons/controls/TransformControls.js";
 
 export class Controls {
   constructor(engine, camera) {
@@ -20,6 +21,7 @@ export class Controls {
 
     this.highlightMeshes = [];
     this.highlightedObjects = {};
+
     // Add the event listeners
     document.addEventListener("mousedown", this.boundOnMouseDown);
     document.addEventListener("mousemove", this.boundOnMouseMove);
@@ -45,6 +47,12 @@ export class Controls {
     // Calculate the bounding box of the original object
     var boundingBox = new THREE.Box3().setFromObject(object);
 
+    this.transformControls = new TransformControls(
+      this.camera.currentCamera,
+      this.engine.renderer.domElement
+    );
+    this.engine.scene.add(this.transformControls);
+    this.transformControls.attach(object);
     // Compute the size of the bounding box
     var size = boundingBox.getSize(new THREE.Vector3());
 
@@ -78,7 +86,9 @@ export class Controls {
 
   onDocumentClick(event) {
     event.preventDefault();
+    const size = 10;
 
+    // this.engine.scene.add(axisHelper.axisGroup);
     // Calculate normalized device coordinates (NDC) from the mouse position
     this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -95,13 +105,28 @@ export class Controls {
     if (intersects.length > 0) {
       // An object was clicked
       const clickedObject = intersects[0].object;
+      if (clickedObject == this.transformControls) return;
+      if (this.transformControls) {
+        this.engine.scene.remove(this.transformControls);
+        this.transformControls.dispose();
+      }
 
+      this.transformControls = new TransformControls(
+        this.camera.currentCamera,
+        this.engine.renderer.domElement
+      );
+      this.engine.scene.add(this.transformControls);
+      this.transformControls.attach(clickedObject);
       // Add a yellow square around the clicked object
-      this.addHighlight(clickedObject);
+      // this.addHighlight(clickedObject);
     }
   }
 
   enableSelectMode() {
+    document.querySelectorAll(".leftsidebar div").forEach(function (div) {
+      div.classList.remove("active");
+    });
+    document.querySelector("#select_mode").classList.toggle("active");
     this.selectMode = true;
     this.moveMode = false;
     document.querySelector("canvas").style.cursor = "pointer";
@@ -118,6 +143,11 @@ export class Controls {
   }
 
   enableMoveMode() {
+    document.querySelectorAll(".leftsidebar div").forEach(function (div) {
+      div.classList.remove("active");
+    });
+
+    document.querySelector("#move_mode").classList.toggle("active");
     this.selectMode = true;
     this.moveMode = false;
     this.camera.orbitControls.enabled = true;

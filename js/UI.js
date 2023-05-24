@@ -1,4 +1,11 @@
-const createButton = (id, imgSrc, tooltipContent, clickHandler, sidebar) => {
+const createButton = (
+  id,
+  imgSrc,
+  tooltipContent,
+  clickHandler,
+  sidebar,
+  active = false
+) => {
   const button = document.createElement("div");
   button.id = id;
   button.classList.add("button");
@@ -6,7 +13,7 @@ const createButton = (id, imgSrc, tooltipContent, clickHandler, sidebar) => {
   const img = document.createElement("img");
   img.src = imgSrc;
   button.appendChild(img);
-
+  if (active) button.classList.add("active");
   sidebar.appendChild(button);
 
   button.addEventListener("click", clickHandler);
@@ -33,8 +40,11 @@ export class UI {
       "move_mode",
       "../assets/icons/move_mode.png",
       "Move Mode",
-      () => this.engine.controls.enableMoveMode(),
-      sidebar
+      () => {
+        this.engine.controls.enableMoveMode();
+      },
+      sidebar,
+      true
     );
     createButton(
       "select_mode",
