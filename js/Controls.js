@@ -1,6 +1,20 @@
 import * as THREE from "three";
 import { TransformControls } from "three/addons/controls/TransformControls.js";
 
+function findEventGroup(object) {
+  let currentObject = object;
+
+  while (currentObject !== null) {
+    if (currentObject.type === "Group" && currentObject.name === "eventGroup") {
+      return currentObject;
+    }
+
+    currentObject = currentObject.parent;
+  }
+
+  return null; // Return null if no group with the name "eventGroup" is found
+}
+
 export class Controls {
   constructor(engine, camera) {
     this.camera = camera;
@@ -104,8 +118,8 @@ export class Controls {
 
     if (intersects.length > 0) {
       // An object was clicked
-      const clickedObject = intersects[0].object;
-      if (clickedObject == this.transformControls) return;
+      const clickedObject = findEventGroup(intersects[0].object);
+      if (!clickedObject || clickedObject == this.transformControls) return;
       if (this.transformControls) {
         this.engine.scene.remove(this.transformControls);
         this.transformControls.dispose();
@@ -117,6 +131,7 @@ export class Controls {
       );
       this.engine.scene.add(this.transformControls);
       this.transformControls.attach(clickedObject);
+
       // Add a yellow square around the clicked object
       // this.addHighlight(clickedObject);
     }
@@ -146,7 +161,10 @@ export class Controls {
     document.querySelectorAll(".leftsidebar div").forEach(function (div) {
       div.classList.remove("active");
     });
-
+    if (this.transformControls) {
+      this.engine.scene.remove(this.transformControls);
+      this.transformControls.dispose();
+    }
     document.querySelector("#move_mode").classList.toggle("active");
     this.selectMode = true;
     this.moveMode = false;

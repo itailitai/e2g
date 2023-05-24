@@ -5,6 +5,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { Camera } from "./camera.js";
 import { Controls } from "./Controls.js";
 import { UI } from "./UI.js";
+import { EventObject } from "./EventObject.js";
 
 export class Engine {
   constructor() {
@@ -48,17 +49,17 @@ export class Engine {
     this.camera.currentCamera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
-  loadModel(url) {
+  loadModel(url, callback) {
     this.gltfLoader.load(
       url,
       (gltf) => {
         this.user_interface.hideLoading();
         this.scene.add(gltf.scene);
-        gltf.scene.position.set(0, 0, 0);
+        if (callback) callback(gltf.scene);
       },
       (xhr) => {
-        console.log(xhr);
-        console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+        // console.log(xhr);
+        // console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
       },
       (error) => {
         console.error("An error occurred:", error);
@@ -73,10 +74,21 @@ export class Engine {
   }
 
   libObjectClickHandler(e) {
+    const confirm_button = document.querySelector("#confirm_add");
     MicroModal.show("object-add-modal");
-    // const model = this.loadModel(
-    //   "../assets/models/objects/" + e.dataset.filename
-    // );
+    // const obj = new EventObject(e.dataset.filename, this);
+    confirm_button.addEventListener(
+      "click",
+      () => {
+        const obj = new EventObject(
+          e.dataset.filename,
+          parseInt(document.querySelector("#numofchairs").value),
+          this
+        );
+        MicroModal.close("object-add-modal");
+      },
+      { once: true }
+    );
   }
 
   start() {

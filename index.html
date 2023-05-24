@@ -39,11 +39,12 @@
           </header>
           <main class="modal__content" id="object-add-modal-content">
             <p>
-             הוספת אובייקט
+             בחר מספר כיסאות
             </p>
+            <input type="number" id='numofchairs' value="0" min="0">
           </main>
           <footer class="modal__footer">
-            <button class="modal__btn modal__btn-primary">הוסף</button>
+            <button id='confirm_add' class="modal__btn modal__btn-primary">הוסף</button>
             <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">ביטול</button>
           </footer>
         </div>
@@ -52,10 +53,11 @@
     <script type="module" src="js/main.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
     <script src="https://unpkg.com/tippy.js@6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
       MicroModal.init();
-
+   
     </script>
   </body>
 </html>
