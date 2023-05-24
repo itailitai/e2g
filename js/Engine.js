@@ -54,6 +54,7 @@ export class Engine {
       (gltf) => {
         this.user_interface.hideLoading();
         this.scene.add(gltf.scene);
+        gltf.scene.position.set(0, 0, 0);
       },
       (xhr) => {
         console.log(xhr);
@@ -63,6 +64,19 @@ export class Engine {
         console.error("An error occurred:", error);
       }
     );
+  }
+
+  async loadFile(url) {
+    const response = await fetch(url);
+    const data = await response.json();
+    return data;
+  }
+
+  libObjectClickHandler(e) {
+    MicroModal.show("object-add-modal");
+    // const model = this.loadModel(
+    //   "../assets/models/objects/" + e.dataset.filename
+    // );
   }
 
   start() {

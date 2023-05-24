@@ -33,13 +33,14 @@ div {
   right: 0;
   z-index: 100;
   width: 50px;
-  height: 100%;
+  height: calc(100% - 50px);
   top: 0;
   background: black;
   box-shadow: 5px 0px 4px rgb(0 0 0 / 5%);
   display: flex;
   flex-flow: column;
-  place-content: flex-end;
+  place-content: flex-start;
+  margin-top: 50px;
 }
 
 .topbar {
@@ -64,8 +65,16 @@ div {
   align-items: center;
 }
 
+.button.dark{
+  background: black;
+}
+
 .button:hover {
   background: rgb(223, 223, 223);
+}
+
+.button.dark:hover {
+  background: rgb(54, 54, 54);
 }
 
 .button.active {
@@ -92,4 +101,69 @@ canvas {
 .rightsidebar img,
 .leftsidebar img {
   width: 70%;
+}
+
+.library-container{
+  position: absolute;
+    right: calc(-18%);
+    top: 50px;
+    width: 18%;
+    background: black;
+    color: white;
+    height: 350px;
+    display: flex;
+    flex-flow: column;
+    direction: rtl;
+    transition: .5s ease all;
+
+}
+
+.library-container.active{
+  right: 50px;;
+}
+.library-info{
+  height: 20%;
+    display: flex;
+    direction: rtl;
+}
+
+.library-info h3{
+  margin-right: 15px;
+}
+
+.lib-objects-container{
+  height: 80%;
+  display: flex;
+  direction: rtl;
+}
+
+
+.lib-object{
+  width: 150px;
+  background: #c0c0c0;
+  background: linear-gradient(0deg, rgba(252,252,252,1) 0%, rgba(192,192,192,1) 100%);  cursor: pointer;
+  color: black;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  direction: rtl;
+  justify-content: space-between;
+  height: 150px;
+  padding-bottom: 5px;
+  transition: background .4s ease-out;
+  background-size:1px 500px; 
+  margin: 5px;
+}
+
+.lib-object:hover{
+  background-size:1px 200px; 
+
+}
+
+.lib-object img{
+  height: 80%;
+}
+
+.lib-object h4{
+  margin: 0;
 }

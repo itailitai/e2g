@@ -3,6 +3,7 @@
   <head>
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/loader.css" />
+    <link rel="stylesheet" type="text/css" href="css/micromodal.css" />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap"
@@ -16,6 +17,8 @@
       src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"
     ></script>
 
+    <script src='https://unpkg.com/micromodal/dist/micromodal.min.js'></script>
+
     <script type="importmap">
       {
         "imports": {
@@ -26,8 +29,33 @@
     </script>
   </head>
   <body>
+    <div class="modal micromodal-slide" id="object-add-modal" aria-hidden="true">
+      <div class="modal__overlay" tabindex="-1" data-micromodal-close>
+        <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="object-add-modal-title">
+          <header class="modal__header">
+            <h2 class="modal__title" id="object-add-modal-title">
+              הוספת אובייקט </h2>
+            <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
+          </header>
+          <main class="modal__content" id="object-add-modal-content">
+            <p>
+             הוספת אובייקט
+            </p>
+          </main>
+          <footer class="modal__footer">
+            <button class="modal__btn modal__btn-primary">הוסף</button>
+            <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">ביטול</button>
+          </footer>
+        </div>
+      </div>
+    </div>
     <script type="module" src="js/main.js"></script>
     <script src="https://unpkg.com/@popperjs/core@2"></script>
     <script src="https://unpkg.com/tippy.js@6"></script>
+
+    <script>
+      MicroModal.init();
+
+    </script>
   </body>
 </html>

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "micromodal": "^0.4.10",
     "nodemon": "^2.0.22"
   }
 }
