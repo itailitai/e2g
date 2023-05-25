@@ -1,6 +1,27 @@
+@font-face {
+  font-family: 'OpenSans Hebrew';
+  src: url('../assets/fonts/OpenSansHebrew-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OpenSans Hebrew';
+  src: url('../assets/fonts/OpenSansHebrew-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OpenSans Hebrew';
+  src: url('../assets/fonts/OpenSansHebrew-Light.ttf') format('truetype');
+  font-weight: lighter;
+  font-style: normal;
+}
+
 body,
 html {
-  font-family: "Roboto", sans-serif;
+  font-family: 'OpenSans Hebrew', Arial, sans-serif;
   height: 100%;
   width: 100%;
   margin: 0;
@@ -105,9 +126,9 @@ canvas {
 
 .library-container{
   position: absolute;
-    right: calc(-18%);
+    right: -350px;
     top: 50px;
-    width: 18%;
+    max-width: 375px;
     background: black;
     color: white;
     height: 350px;
@@ -139,7 +160,7 @@ canvas {
 
 
 .lib-object{
-  width: 150px;
+  width: 125px;;
   background: #c0c0c0;
   background: linear-gradient(0deg, rgba(252,252,252,1) 0%, rgba(192,192,192,1) 100%);  cursor: pointer;
   color: black;
@@ -166,4 +187,29 @@ canvas {
 
 .lib-object h4{
   margin: 0;
+}
+
+.object-context-menu{
+  background: black;
+  color: white;
+  
+  direction: rtl;
+}
+
+.object-context-menu div{
+  padding: 5px 10px 5px 20px;
+  transition: background .25s ease;
+  cursor: pointer;
+}
+
+.object-context-menu div:hover{
+  background: #2e2e2e;
+}
+
+#rotate_button{
+  display: none;
+}
+
+.object_control_section{
+  border-bottom: 4px solid #d6d6d6;
 }

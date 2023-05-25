@@ -1,12 +1,27 @@
 import * as THREE from "three";
-
+function generateRandomString(length) {
+  let result = "";
+  let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  let charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
 export class EventObject {
   constructor(obj_filename, num_chairs, engine) {
+    this.filename = obj_filename;
     this.group = new THREE.Group();
-    this.group.name = "eventGroup";
+    this.group.name = obj_filename.slice(0, -4) + generateRandomString(6);
+    this.group.class = "eventGroup";
     this.engine = engine;
     this.objectsArray = [];
     this.chairs = num_chairs;
+    this.loadObjects(obj_filename, num_chairs);
+  }
+
+  loadObjects(obj_filename, num_chairs) {
+    this.engine.objectsDict[this.group.name] = this;
     this.engine.loadModel(
       "../assets/models/objects/" + obj_filename,
       (loadedTable) => {
@@ -29,6 +44,34 @@ export class EventObject {
     );
   }
 
+  createObjectEditWindow() {
+    document.body.appendChild(
+      this.engine.user_interface.createModalContent(
+        "עריכת שולחן",
+        "בחר מספר כיסאות",
+        "edit-modal"
+      )
+    );
+    this.objectEditWindowHandler();
+  }
+
+  objectEditWindowHandler() {
+    const confirm_button = document.querySelector("#confirm_add");
+    const modalDiv = document.querySelector("#edit-modal");
+    MicroModal.show("edit-modal");
+    // const obj = new EventObject(e.dataset.filename, this);
+    confirm_button.addEventListener("click", () => {
+      document
+        .querySelector(".object-context-menu")
+        .parentNode.removeChild(document.querySelector(".object-context-menu"));
+      this.chairs = document.querySelector("#numofchairs").value;
+      this.reset();
+
+      this.loadObjects(this.filename, parseInt(this.chairs));
+      MicroModal.close("edit-modal");
+      modalDiv.parentNode.removeChild(modalDiv);
+    });
+  }
   arrangeChairsAroundTable(table, chair, numChairs, margin = 0.1) {
     // Calculate table and chair dimensions
     let tableBox = new THREE.Box3().setFromObject(table);
@@ -108,5 +151,14 @@ export class EventObject {
     }
     this.engine.scene.add(this.group);
     this.engine.scene.remove(chair);
+  }
+
+  reset() {
+    this.engine.scene.remove(this.group);
+    this.engine.scene.remove(this.chair);
+    this.engine.scene.remove(this.table);
+    this.group = new THREE.Group();
+    this.group.name = this.filename.slice(0, -4);
+    this.group.class = "eventGroup";
   }
 }

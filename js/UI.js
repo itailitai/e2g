@@ -1,31 +1,4 @@
-const createButton = (
-  id,
-  imgSrc,
-  tooltipContent,
-  clickHandler,
-  sidebar,
-  active = false
-) => {
-  const button = document.createElement("div");
-  button.id = id;
-  button.classList.add("button");
-  if (sidebar.classList.contains("rightsidebar")) {
-    button.classList.add("dark");
-  }
-
-  const img = document.createElement("img");
-  img.src = imgSrc;
-  button.appendChild(img);
-  if (active) button.classList.add("active");
-  sidebar.appendChild(button);
-
-  button.addEventListener("click", clickHandler);
-  tippy(button, {
-    content: tooltipContent,
-    arrow: true,
-    placement: "right",
-  });
-};
+import * as THREE from "three";
 
 export class UI {
   constructor(engine) {
@@ -37,28 +10,69 @@ export class UI {
     this.createLibraryMenu();
   }
 
+  createButton = (
+    id,
+    imgSrc,
+    tooltipContent,
+    clickHandler,
+    sidebar,
+    active = false
+  ) => {
+    const button = document.createElement("div");
+    button.id = id;
+    button.classList.add("button");
+    if (sidebar.classList.contains("rightsidebar")) {
+      button.classList.add("dark");
+    }
+
+    const img = document.createElement("img");
+    img.src = imgSrc;
+    button.appendChild(img);
+    if (active) button.classList.add("active");
+    sidebar.appendChild(button);
+
+    button.addEventListener("click", clickHandler);
+    tippy(button, {
+      content: tooltipContent,
+      arrow: true,
+      placement: "right",
+    });
+  };
+
   createLeftSidebar() {
     const sidebar = document.createElement("div");
-    sidebar.classList.add("leftsidebar");
-    createButton(
+    sidebar.className = "leftsidebar";
+    const object_control_div = document.createElement("div");
+    object_control_div.className = "object_control_section";
+    sidebar.appendChild(object_control_div);
+    this.createButton(
+      "rotate_button",
+      "../assets/icons/rotate.png",
+      "Rotate Object",
+      () => {
+        this.engine.controls.enableRotateMode();
+      },
+      object_control_div
+    );
+    this.createButton(
       "move_mode",
       "../assets/icons/move_mode.png",
-      "Move Mode",
+      "Move Object",
       () => {
         this.engine.controls.enableMoveMode();
       },
       sidebar,
       true
     );
-    createButton(
+    this.createButton(
       "select_mode",
       "../assets/icons/select_mode.png",
       "Select Mode",
       () => this.engine.controls.enableSelectMode(),
-      sidebar
+      object_control_div
     );
 
-    createButton(
+    this.createButton(
       "view_3d",
       "../assets/icons/3d_view.png",
       "3D View",
@@ -66,7 +80,7 @@ export class UI {
       sidebar
     );
 
-    createButton(
+    this.createButton(
       "view_2d",
       "../assets/icons/2d_view.png",
       "2D View",
@@ -81,7 +95,7 @@ export class UI {
     const sidebar = document.createElement("div");
     sidebar.classList.add("rightsidebar");
 
-    createButton(
+    this.createButton(
       "library_button",
       "../assets/icons/library.png",
       "Library",
@@ -138,6 +152,9 @@ export class UI {
       h4.textContent = item.guiname;
       div.appendChild(h4);
       div.addEventListener("click", () => {
+        document.body.appendChild(
+          this.createModalContent("הוספת שולחן", "בחר מספר כיסאות")
+        );
         this.engine.libObjectClickHandler(div);
       });
       // Append the div to the body or other container
@@ -159,5 +176,156 @@ export class UI {
     container.appendChild(lib_objects_container);
     this.createLibObjects(lib_objects_container);
     document.body.append(container);
+  }
+
+  createContextMenuAtObjectPosition(object) {
+    var camera = this.engine.camera.currentCamera;
+    var renderer = this.engine.renderer;
+
+    var vector = new THREE.Vector3();
+
+    // translate object position to vector
+    vector.setFromMatrixPosition(object.matrixWorld);
+
+    // project vector to camera
+    vector.project(camera);
+    console.log(vector);
+    // translate to normalized device coordinates
+    vector.x = Math.round(((vector.x + 1) * renderer.domElement.width) / 2);
+    vector.y = Math.round(((-vector.y + 1) * renderer.domElement.height) / 2);
+
+    // create div
+    var div = document.createElement("div");
+    div.style.position = "absolute";
+    div.style.top = vector.y + "px";
+    div.style.left = vector.x + "px";
+    div.style.width = "auto";
+    div.style.minHeight = "100px";
+    div.className = "object-context-menu";
+    console.log("INFO:");
+    console.log(this.engine.objectsDict);
+    console.log(object.name);
+    console.log(this.engine.objectsDict[object.name]);
+    addContextMenuButton(
+      "replace_obj_btn",
+      "החלף אובייקט",
+      this.engine.objectsDict[object.name]
+    );
+    addContextMenuButton(
+      "edit_obj_btn",
+      "ערוך אובייקט",
+      this.engine.objectsDict[object.name]
+    );
+    addContextMenuButton(
+      "copy_obj_btn",
+      "העתק אובייקט",
+      this.engine.objectsDict[object.name]
+    );
+    addContextMenuButton(
+      "delete_obj_btn",
+      "מחיקת אובייקט",
+      this.engine.objectsDict[object.name]
+    );
+    console.log(this.engine.objectsDict);
+    document.body.appendChild(div);
+
+    function addContextMenuButton(btn_id, btn_txt, object) {
+      document.querySelector(".library-container").classList.remove("active");
+      var button = document.createElement("div");
+      button.id = btn_id;
+      button.innerHTML = btn_txt;
+      button.addEventListener(
+        "click",
+        (e) => {
+          object.createObjectEditWindow();
+        },
+        { once: true }
+      );
+
+      div.appendChild(button);
+    }
+  }
+
+  createModalContent(title, content, id = "object-add-modal") {
+    const modalDiv = document.createElement("div");
+    modalDiv.className = "modal micromodal-slide";
+    modalDiv.id = id;
+    modalDiv.setAttribute("aria-hidden", "true");
+
+    const overlayDiv = document.createElement("div");
+    overlayDiv.className = "modal__overlay";
+    overlayDiv.setAttribute("tabindex", "-1");
+    // overlayDiv.setAttribute("data-micromodal-close", "");
+
+    const containerDiv = document.createElement("div");
+    containerDiv.className = "modal__container";
+    containerDiv.setAttribute("role", "dialog");
+    containerDiv.setAttribute("aria-modal", "true");
+    containerDiv.setAttribute("aria-labelledby", "object-add-modal-title");
+
+    const headerDiv = document.createElement("header");
+    headerDiv.className = "modal__header";
+
+    const titleH2 = document.createElement("h2");
+    titleH2.className = "modal__title";
+    titleH2.id = "object-add-modal-title";
+    titleH2.textContent = title;
+
+    const closeButton = document.createElement("button");
+    closeButton.className = "modal__close";
+    closeButton.setAttribute("aria-label", "Close modal");
+    closeButton.setAttribute("data-micromodal-close", "");
+    closeButton.onclick = () => {
+      modalDiv.parentNode.removeChild(modalDiv);
+    };
+    const mainDiv = document.createElement("main");
+    mainDiv.className = "modal__content";
+    mainDiv.id = "object-add-modal-content";
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent = content;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.id = "numofchairs";
+    input.value = "0";
+    input.setAttribute("min", "0");
+
+    const footerDiv = document.createElement("footer");
+    footerDiv.className = "modal__footer";
+
+    const addButton = document.createElement("button");
+    addButton.id = "confirm_add";
+    addButton.className = "modal__btn modal__btn-primary";
+    addButton.textContent = "הוסף";
+
+    const cancelButton = document.createElement("button");
+    cancelButton.className = "modal__btn";
+    cancelButton.setAttribute("data-micromodal-close", "");
+    cancelButton.setAttribute("aria-label", "Close this dialog window");
+    cancelButton.textContent = "ביטול";
+    cancelButton.onclick = () => {
+      modalDiv.parentNode.removeChild(modalDiv);
+    };
+
+    // Build the HTML structure
+    headerDiv.appendChild(titleH2);
+    headerDiv.appendChild(closeButton);
+
+    mainDiv.appendChild(paragraph);
+    mainDiv.appendChild(input);
+
+    footerDiv.appendChild(addButton);
+    footerDiv.appendChild(cancelButton);
+
+    containerDiv.appendChild(headerDiv);
+    containerDiv.appendChild(mainDiv);
+    containerDiv.appendChild(footerDiv);
+
+    overlayDiv.appendChild(containerDiv);
+
+    modalDiv.appendChild(overlayDiv);
+
+    return modalDiv;
   }
 }

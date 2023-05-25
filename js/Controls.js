@@ -5,7 +5,10 @@ function findEventGroup(object) {
   let currentObject = object;
 
   while (currentObject !== null) {
-    if (currentObject.type === "Group" && currentObject.name === "eventGroup") {
+    if (
+      currentObject.type === "Group" &&
+      currentObject.class === "eventGroup"
+    ) {
       return currentObject;
     }
 
@@ -26,8 +29,8 @@ export class Controls {
     this.raycaster = new THREE.Raycaster();
 
     // Create references to the bound functions
-    this.boundOnDocumentClick = this.onDocumentClick.bind(this);
-    this.boundOnMouseDown = this.camera.onMouseDown.bind(this.camera);
+    this.boundOnDocumentClick = this.onObjectLeftClick.bind(this);
+    this.boundOnObjectRightClick = this.onMouseDown.bind(this);
     this.boundOnMouseMove = this.camera.onMouseMove.bind(this.camera);
     this.boundHandleMouseScroll = this.camera.handleMouseScroll.bind(
       this.camera
@@ -37,9 +40,18 @@ export class Controls {
     this.highlightedObjects = {};
 
     // Add the event listeners
-    document.addEventListener("mousedown", this.boundOnMouseDown);
-    document.addEventListener("mousemove", this.boundOnMouseMove);
-    document.addEventListener("wheel", this.boundHandleMouseScroll);
+    this.engine.renderer.domElement.addEventListener(
+      "mousedown",
+      this.boundOnObjectRightClick
+    );
+    this.engine.renderer.domElement.addEventListener(
+      "mousemove",
+      this.boundOnMouseMove
+    );
+    this.engine.renderer.domElement.addEventListener(
+      "wheel",
+      this.boundHandleMouseScroll
+    );
   }
 
   removeHighlight(object) {
@@ -66,6 +78,7 @@ export class Controls {
       this.engine.renderer.domElement
     );
     this.engine.scene.add(this.transformControls);
+    this.engine.StartCollisionDetection(this.transformControls);
     this.transformControls.attach(object);
     // Compute the size of the bounding box
     var size = boundingBox.getSize(new THREE.Vector3());
@@ -98,10 +111,10 @@ export class Controls {
     this.highlightMeshes.push(highlightBox);
   }
 
-  onDocumentClick(event) {
+  onObjectLeftClick(event) {
     event.preventDefault();
     const size = 10;
-
+    document.querySelector("#rotate_button").style.display = "flex";
     // this.engine.scene.add(axisHelper.axisGroup);
     // Calculate normalized device coordinates (NDC) from the mouse position
     this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -129,6 +142,7 @@ export class Controls {
         this.camera.currentCamera,
         this.engine.renderer.domElement
       );
+      this.engine.StartCollisionDetection(this.transformControls);
       this.engine.scene.add(this.transformControls);
       this.transformControls.attach(clickedObject);
 
@@ -137,14 +151,57 @@ export class Controls {
     }
   }
 
+  onMouseDown(event) {
+    if (document.querySelector(".object-context-menu"))
+      document
+        .querySelector(".object-context-menu")
+        .parentNode.removeChild(document.querySelector(".object-context-menu"));
+    // Check the button property to determine which button was clicked
+    if (event.button === 0) {
+      // Left click
+
+      this.camera.onMouseDown(event);
+    } else if (event.button === 2) {
+      // Right click
+      this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      // Set the raycaster to originate from the camera and pass through the mouse position
+      this.raycaster.setFromCamera(this.mouse, this.camera.currentCamera);
+
+      // Check for intersections between the raycaster and the objects in the scene
+      const intersects = this.raycaster.intersectObjects(
+        this.engine.scene.children,
+        true
+      );
+
+      if (intersects.length > 0) {
+        // An object was clicked
+        console.log(intersects[0].object);
+        const clickedObject = findEventGroup(intersects[0].object);
+        console.log(clickedObject);
+        if (!clickedObject) return;
+        this.engine.user_interface.createContextMenuAtObjectPosition(
+          clickedObject
+        );
+      }
+    }
+  }
+
   enableSelectMode() {
     document.querySelectorAll(".leftsidebar div").forEach(function (div) {
       div.classList.remove("active");
     });
+    if (this.transformControls && this.transformControls.mode === "rotate") {
+      this.transformControls.mode = "translate";
+      this.transformControls.showX = true;
+      this.transformControls.showZ = true;
+      return;
+    }
     document.querySelector("#select_mode").classList.toggle("active");
     this.selectMode = true;
     this.moveMode = false;
     document.querySelector("canvas").style.cursor = "pointer";
+
     this.engine.renderer.domElement.addEventListener(
       "click",
       this.boundOnDocumentClick
@@ -152,15 +209,26 @@ export class Controls {
     // Remove the event listeners
     console.log(this.camera);
     this.camera.orbitControls.enabled = false;
-    document.removeEventListener("mousedown", this.boundOnMouseDown);
-    document.removeEventListener("mousemove", this.boundOnMouseMove);
-    document.removeEventListener("wheel", this.boundHandleMouseScroll);
+
+    this.engine.renderer.domElement.removeEventListener(
+      "mousedown",
+      this.boundOnObjectRightClick
+    );
+    this.engine.renderer.domElement.removeEventListener(
+      "mousemove",
+      this.boundOnMouseMove
+    );
+    this.engine.renderer.domElement.removeEventListener(
+      "wheel",
+      this.boundHandleMouseScroll
+    );
   }
 
   enableMoveMode() {
     document.querySelectorAll(".leftsidebar div").forEach(function (div) {
       div.classList.remove("active");
     });
+    document.querySelector("#rotate_button").style.display = "none";
     if (this.transformControls) {
       this.engine.scene.remove(this.transformControls);
       this.transformControls.dispose();
@@ -171,13 +239,42 @@ export class Controls {
     this.camera.orbitControls.enabled = true;
     document.querySelector("canvas").style.cursor = "move";
     // Add the event listeners
-    document.addEventListener("mousedown", this.boundOnMouseDown);
-    document.addEventListener("mousemove", this.boundOnMouseMove);
-    document.addEventListener("wheel", this.boundHandleMouseScroll);
+    this.engine.renderer.domElement.addEventListener(
+      "mousedown",
+      this.boundOnObjectRightClick
+    );
+    this.engine.renderer.domElement.addEventListener(
+      "mousemove",
+      this.boundOnMouseMove
+    );
+    this.engine.renderer.domElement.addEventListener(
+      "wheel",
+      this.boundHandleMouseScroll
+    );
     // Remove the event listeners
     this.engine.renderer.domElement.removeEventListener(
       "click",
       this.boundOnDocumentClick
     );
+  }
+
+  enableRotateMode() {
+    document.querySelectorAll(".leftsidebar div").forEach(function (div) {
+      div.classList.remove("active");
+    });
+    if (this.transformControls) {
+      this.transformControls.mode = "rotate";
+      this.transformControls.showX = false;
+      this.transformControls.showZ = false;
+      return;
+    }
+    document.querySelector("#rotate_button").classList.toggle("active");
+    this.camera.orbitControls.enabled = false;
+    document.querySelector("canvas").style.cursor = "move";
+    // Add the event listeners
+    // this.engine.renderer.domElement.removeEventListener(
+    //   "click",
+    //   this.boundOnDocumentClick
+    // );
   }
 }
