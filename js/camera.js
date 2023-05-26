@@ -31,6 +31,7 @@ export class Camera {
       this.camera3D,
       renderer.domElement
     );
+    this.orbitControls3D.enabled = false;
     this.orbitControls2D = new OrbitControls(
       this.camera2D,
       renderer.domElement
@@ -69,22 +70,26 @@ export class Camera {
     else return this.orbitControls3D;
   }
 
-  initCurrentOrbitControls() {
-    if (this.currentCamera == this.camera2D) {
+  initCurrentOrbitControls = () => {
+    if (this.orbitControls3D.enabled) {
       // this.camera2D.position.set(0, 10, 0);
+
       this.camera2D.lookAt(0, 0, 0);
+      this.orbitControls3D.enabled = false;
       this.orbitControls2D.enabled = true;
       this.orbitControls2D.enableRotate = false;
       this.orbitControls2D.enableZoom = true;
-      this.orbitControls2D.minPolarAngle = -Math.PI; // Minimum angle (90 degrees)
-      this.orbitControls2D.maxPolarAngle = -Math.PI; // Maximum angle (90 degrees)
+
       this.orbitControls2D.target.set(0, 0, 0);
+      this.orbitControls3D.update();
       this.orbitControls2D.update();
     } else {
+      this.orbitControls2D.enabled = false;
       this.orbitControls3D.enabled = true;
+      this.orbitControls2D.update();
       this.orbitControls3D.update();
     }
-  }
+  };
 
   // handleMouseScroll(event) {
   //   // Get the change in wheel position
@@ -144,14 +149,16 @@ export class Camera {
     if (enable2D && !this.is2DMode) {
       // Switch to 2D mode
       this.initCurrentOrbitControls();
-
-      this.enableMouseDrag = true;
+      this.camera2D.position.set(0, 10, 0);
+      this.camera2D.lookAt(0, 0, 0);
+      this.enableMouseDrag = false;
 
       this.currentCamera = this.camera2D;
 
       this.is2DMode = true;
     } else if (!enable2D && this.is2DMode) {
       // Switch to 3D mode
+      this.initCurrentOrbitControls();
       this.camera3D.position.set(0, 10, 10);
       this.camera3D.lookAt(0, 0, 0);
 
@@ -168,10 +175,10 @@ export class Camera {
 
     // Update the aspect ratio of both cameras
     Object.assign(this.camera2D, {
-      left: width / -120,
-      right: width / 120,
-      top: height / 120,
-      bottom: height / -120,
+      left: width / -2,
+      right: width / 2,
+      top: height / 2,
+      bottom: height / -2,
     });
     this.camera2D.updateProjectionMatrix();
 

@@ -54,7 +54,7 @@ export class Engine {
   }
 
   onWindowResize() {
-    this.camera.updateAspectRatio(window.innerWidth, window.innerHeight);
+    this.camera.updateAspectRatio(16, 9);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
   loadModel(url, callback) {
