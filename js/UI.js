@@ -1,5 +1,39 @@
 import * as THREE from "three";
 
+function addLongPressListener(element, callback, duration = 500) {
+  let pressTimer;
+
+  element.addEventListener(
+    "touchstart",
+    (event) => {
+      // Start the timer
+      pressTimer = setTimeout(() => {
+        // Trigger the long press event here
+        callback(event.touches[0]);
+      }, duration);
+    },
+    false
+  );
+
+  element.addEventListener(
+    "touchend",
+    () => {
+      // Stop the timer
+      clearTimeout(pressTimer);
+    },
+    false
+  );
+
+  element.addEventListener(
+    "touchmove",
+    () => {
+      // Stop the timer in case of a movement
+      clearTimeout(pressTimer);
+    },
+    false
+  );
+}
+
 export class UI {
   constructor(engine) {
     this.engine = engine;
@@ -8,6 +42,11 @@ export class UI {
     this.createRightSidebar();
     this.createTopBar();
     this.createLibraryMenu();
+    addLongPressListener(
+      this.engine.renderer.domElement,
+      this.engine.controls.onMouseDown,
+      300
+    );
   }
 
   createButton = (

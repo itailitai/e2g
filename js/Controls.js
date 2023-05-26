@@ -156,16 +156,19 @@ export class Controls {
     }
   }
 
-  onMouseDown(event) {
+  onMouseDown = (event) => {
     if (document.querySelector(".object-context-menu"))
       document
         .querySelector(".object-context-menu")
         .parentNode.removeChild(document.querySelector(".object-context-menu"));
     // Check the button property to determine which button was clicked
-    if (event.button === 0) {
+    if (event.button && event.button === 0) {
       // Left click
-    } else if (event.button === 2) {
+    } else if ((event.button && event.button === 2) || event.clientX) {
       // Right click
+      // if(!event.button){
+      //   this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      // }
       this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
       this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
       // Set the raycaster to originate from the camera and pass through the mouse position
@@ -188,7 +191,7 @@ export class Controls {
         );
       }
     }
-  }
+  };
 
   enableSelectMode() {
     document.querySelectorAll(".leftsidebar div").forEach(function (div) {
@@ -242,7 +245,7 @@ export class Controls {
     document.querySelector("#move_mode").classList.toggle("active");
     this.selectMode = true;
     this.moveMode = false;
-    this.camera.initCurrentOrbitControls();
+    this.camera.getCurrentOrbitControls().enabled = true;
 
     document.querySelector("canvas").style.cursor = "move";
     // Add the event listeners
