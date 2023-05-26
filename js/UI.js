@@ -209,38 +209,93 @@ export class UI {
     addContextMenuButton(
       "replace_obj_btn",
       "החלף אובייקט",
-      this.engine.objectsDict[object.name]
+      this.engine.objectsDict[object.name],
+      "edit"
     );
     addContextMenuButton(
       "edit_obj_btn",
       "ערוך אובייקט",
-      this.engine.objectsDict[object.name]
+      this.engine.objectsDict[object.name],
+      "edit"
     );
     addContextMenuButton(
       "copy_obj_btn",
       "העתק אובייקט",
-      this.engine.objectsDict[object.name]
+      this.engine.objectsDict[object.name],
+      "duplicate"
     );
     addContextMenuButton(
       "delete_obj_btn",
       "מחיקת אובייקט",
-      this.engine.objectsDict[object.name]
+      this.engine.objectsDict[object.name],
+      "remove"
     );
 
     document.body.appendChild(div);
 
-    function addContextMenuButton(btn_id, btn_txt, object) {
+    function addContextMenuButton(btn_id, btn_txt, object, operation) {
       document.querySelector(".library-container").classList.remove("active");
       var button = document.createElement("div");
       button.id = btn_id;
       button.innerHTML = btn_txt;
-      button.addEventListener(
-        "click",
-        (e) => {
-          object.createObjectEditWindow();
-        },
-        { once: true }
-      );
+      switch (operation) {
+        case "edit":
+          button.addEventListener(
+            "click",
+            (e) => {
+              object.createObjectEditWindow();
+            },
+            { once: true }
+          );
+          break;
+
+        case "duplicate":
+          button.addEventListener(
+            "click",
+            (e) => {
+              object.duplicate();
+            },
+            { once: true }
+          );
+          break;
+        case "remove":
+          button.addEventListener(
+            "click",
+            (e) => {
+              Swal.fire({
+                title: "Confirmation",
+                text: "Are you sure you want to delete this item?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel",
+                allowOutsideClick: false,
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  // The user confirmed the deletion, perform the delete operation here
+                  object.destroy();
+                  Swal.fire(
+                    "Deleted!",
+                    "The item has been deleted.",
+                    "success"
+                  );
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                  // The user canceled the deletion
+                  if (document.querySelector(".object-context-menu"))
+                    document
+                      .querySelector(".object-context-menu")
+                      .parentNode.removeChild(
+                        document.querySelector(".object-context-menu")
+                      );
+                }
+              });
+            },
+            { once: true }
+          );
+
+        default:
+          break;
+      }
 
       div.appendChild(button);
     }

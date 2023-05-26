@@ -13,7 +13,10 @@ export class Engine {
     window.scene = this.scene;
     window.THREE = THREE;
     this.scene.background = new THREE.Color(0xd9dbe8);
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+    });
     this.renderer.setSize(
       document.body.clientWidth,
       document.body.clientHeight
@@ -35,7 +38,9 @@ export class Engine {
     this.dracoLoader.setDecoderPath(
       "https://unpkg.com/three@0.152.2/examples/jsm/libs/draco/"
     );
-    this.dracoLoader.setDecoderConfig({ type: "js" });
+    this.dracoLoader.setDecoderConfig({
+      type: "js",
+    });
 
     this.gltfLoader = new GLTFLoader();
     this.gltfLoader.setDRACOLoader(this.dracoLoader);
@@ -94,7 +99,9 @@ export class Engine {
         MicroModal.close("object-add-modal");
         modalDiv.parentNode.removeChild(modalDiv);
       },
-      { once: true }
+      {
+        once: true,
+      }
     );
   }
 
@@ -106,28 +113,32 @@ export class Engine {
 
     transformControl.addEventListener(
       "dragging-changed",
-      handleDraggingChanged.bind(this)
+      handleDraggingChanged.bind(this),
+      {
+        once: true,
+      }
     );
     transformControl.addEventListener(
       "change",
-      handleTransformChange.bind(this)
+      handleTransformChange.bind(this),
+      {
+        once: true,
+      }
     );
 
     function handleDraggingChanged(event) {
       dragging = event.value;
 
       if (dragging) {
-        // Store original position when dragging starts
+        // Store original position and rotation when dragging starts
         originalPosition = transformControl.object.position.clone();
         originalRotation = transformControl.object.rotation.clone();
       } else if (collidingObject) {
-        // Revert position and restore original material if collision occurred
-        handleCollisionEnd(
-          collidingObject,
-          transformControl,
-          originalPosition,
-          originalRotation
-        );
+        // Always reset material
+        resetMaterial(collidingObject);
+
+        // Reset position and rotation only when not dragging
+        resetTransform(transformControl, originalPosition, originalRotation);
         collidingObject = null;
       }
     }
@@ -144,7 +155,13 @@ export class Engine {
         handleCollisionStart(collisionDetected);
         collidingObject = collisionDetected;
       } else if (collidingObject) {
-        handleCollisionEnd(collidingObject, transformControl, originalRotation);
+        // Always reset material
+        resetMaterial(collidingObject);
+
+        // Reset position and rotation only when not dragging
+        if (!dragging) {
+          resetTransform(transformControl, originalPosition, originalRotation);
+        }
         collidingObject = null;
       }
     }
@@ -182,8 +199,17 @@ export class Engine {
       });
     }
 
-    function handleCollisionEnd(
-      object,
+    function resetMaterial(object) {
+      // Restore original material
+      object.traverse(function (child) {
+        if (child.isMesh && child.userData.originalMaterial) {
+          child.material = child.userData.originalMaterial;
+          child.userData.originalMaterial = null;
+        }
+      });
+    }
+
+    function resetTransform(
       transformControl,
       originalPosition = null,
       originalRotation = null
@@ -194,16 +220,9 @@ export class Engine {
       }
 
       if (originalRotation) {
-        // Revert to the original position
+        // Revert to the original rotation
         transformControl.object.rotation.copy(originalRotation);
       }
-      // Restore original material
-      object.traverse(function (child) {
-        if (child.isMesh && child.userData.originalMaterial) {
-          child.material = child.userData.originalMaterial;
-          child.userData.originalMaterial = null;
-        }
-      });
     }
   }
   start() {

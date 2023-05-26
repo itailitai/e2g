@@ -159,6 +159,28 @@ export class EventObject {
     this.engine.scene.add(this.group);
     this.engine.scene.remove(chair);
   }
+  duplicate() {
+    if (document.querySelector(".object-context-menu"))
+      document
+        .querySelector(".object-context-menu")
+        .parentNode.removeChild(document.querySelector(".object-context-menu"));
+    new EventObject(this.filename, this.chairs, this.engine);
+  }
+  destroy() {
+    if (document.querySelector(".object-context-menu"))
+      document
+        .querySelector(".object-context-menu")
+        .parentNode.removeChild(document.querySelector(".object-context-menu"));
+    this.engine.scene.remove(this.group);
+    delete this.engine.objectsDict[this.group.name];
+    this.filename = null;
+    this.group = null;
+    this.engine = null;
+    this.objectsArray = null;
+    this.chairs = null;
+    // If loadObjects is creating new objects, you might need to ensure they are also destroyed
+    // but it's hard to say without seeing that code
+  }
 
   reset() {
     this.engine.scene.remove(this.group);

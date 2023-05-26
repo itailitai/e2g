@@ -31,10 +31,10 @@ export class Controls {
     // Create references to the bound functions
     this.boundOnDocumentClick = this.onObjectLeftClick.bind(this);
     this.boundOnObjectRightClick = this.onMouseDown.bind(this);
-    this.boundOnMouseMove = this.camera.onMouseMove.bind(this.camera);
-    this.boundHandleMouseScroll = this.camera.handleMouseScroll.bind(
-      this.camera
-    );
+    // this.boundOnMouseMove = this.camera.onMouseMove.bind(this.camera);
+    // this.boundHandleMouseScroll = this.camera.handleMouseScroll.bind(
+    //   this.camera
+    // );
 
     this.highlightMeshes = [];
     this.highlightedObjects = {};
@@ -48,10 +48,10 @@ export class Controls {
       "mousemove",
       this.boundOnMouseMove
     );
-    this.engine.renderer.domElement.addEventListener(
-      "wheel",
-      this.boundHandleMouseScroll
-    );
+    // this.engine.renderer.domElement.addEventListener(
+    //   "wheel",
+    //   this.boundHandleMouseScroll
+    // );
   }
 
   removeHighlight(object) {
@@ -142,6 +142,11 @@ export class Controls {
         this.camera.currentCamera,
         this.engine.renderer.domElement
       );
+      this.transformControls.mode = "translate";
+      this.transformControls.showX = true;
+      this.transformControls.showZ = true;
+
+      this.transformControls.showY = false;
       this.engine.StartCollisionDetection(this.transformControls);
       this.engine.scene.add(this.transformControls);
       this.transformControls.attach(clickedObject);
@@ -159,8 +164,6 @@ export class Controls {
     // Check the button property to determine which button was clicked
     if (event.button === 0) {
       // Left click
-
-      this.camera.onMouseDown(event);
     } else if (event.button === 2) {
       // Right click
       this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -195,6 +198,7 @@ export class Controls {
       this.transformControls.mode = "translate";
       this.transformControls.showX = true;
       this.transformControls.showZ = true;
+      this.transformControls.showY = false;
       return;
     }
     document.querySelector("#select_mode").classList.toggle("active");
@@ -208,7 +212,9 @@ export class Controls {
     );
     // Remove the event listeners
     console.log(this.camera);
-    this.camera.orbitControls.enabled = false;
+    const orbitControls = this.camera.getCurrentOrbitControls();
+    console.log(orbitControls);
+    orbitControls.enabled = false;
 
     this.engine.renderer.domElement.removeEventListener(
       "mousedown",
@@ -218,10 +224,10 @@ export class Controls {
       "mousemove",
       this.boundOnMouseMove
     );
-    this.engine.renderer.domElement.removeEventListener(
-      "wheel",
-      this.boundHandleMouseScroll
-    );
+    // this.engine.renderer.domElement.removeEventListener(
+    //   "wheel",
+    //   this.boundHandleMouseScroll
+    // );
   }
 
   enableMoveMode() {
@@ -236,7 +242,8 @@ export class Controls {
     document.querySelector("#move_mode").classList.toggle("active");
     this.selectMode = true;
     this.moveMode = false;
-    this.camera.orbitControls.enabled = true;
+    this.camera.initCurrentOrbitControls();
+
     document.querySelector("canvas").style.cursor = "move";
     // Add the event listeners
     this.engine.renderer.domElement.addEventListener(
@@ -247,10 +254,10 @@ export class Controls {
       "mousemove",
       this.boundOnMouseMove
     );
-    this.engine.renderer.domElement.addEventListener(
-      "wheel",
-      this.boundHandleMouseScroll
-    );
+    // this.engine.renderer.domElement.addEventListener(
+    //   "wheel",
+    //   this.boundHandleMouseScroll
+    // );
     // Remove the event listeners
     this.engine.renderer.domElement.removeEventListener(
       "click",
@@ -266,10 +273,12 @@ export class Controls {
       this.transformControls.mode = "rotate";
       this.transformControls.showX = false;
       this.transformControls.showZ = false;
+      this.transformControls.showY = true;
       return;
     }
     document.querySelector("#rotate_button").classList.toggle("active");
-    this.camera.orbitControls.enabled = false;
+    const orbitControls = this.camera.getCurrentOrbitControls();
+    orbitControls.enabled = false;
     document.querySelector("canvas").style.cursor = "move";
     // Add the event listeners
     // this.engine.renderer.domElement.removeEventListener(
