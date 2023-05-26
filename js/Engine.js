@@ -54,8 +54,7 @@ export class Engine {
   }
 
   onWindowResize() {
-    this.camera.currentCamera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.currentCamera.updateProjectionMatrix();
+    this.camera.updateAspectRatio(window.innerWidth, window.innerHeight);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
   loadModel(url, callback) {

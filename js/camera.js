@@ -26,7 +26,7 @@ export class Camera {
     this.camera3D = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     this.camera3D.position.set(0, 10, 10);
     this.camera3D.lookAt(0, 0, 0);
-
+    this.updateAspectRatio(width, height);
     this.orbitControls3D = new OrbitControls(
       this.camera3D,
       renderer.domElement
@@ -168,10 +168,10 @@ export class Camera {
 
     // Update the aspect ratio of both cameras
     Object.assign(this.camera2D, {
-      left: width / -2,
-      right: width / 2,
-      top: height / 2,
-      bottom: height / -2,
+      left: width / -120,
+      right: width / 120,
+      top: height / 120,
+      bottom: height / -120,
     });
     this.camera2D.updateProjectionMatrix();
 
