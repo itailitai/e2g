@@ -47,7 +47,7 @@ export class UI {
     sidebar.appendChild(object_control_div);
     this.createButton(
       "rotate_button",
-      "../assets/icons/rotate.png",
+      "assets/icons/rotate.png",
       "Rotate Object",
       () => {
         this.engine.controls.enableRotateMode();
@@ -56,7 +56,7 @@ export class UI {
     );
     this.createButton(
       "move_mode",
-      "../assets/icons/move_mode.png",
+      "assets/icons/move_mode.png",
       "Move Object",
       () => {
         this.engine.controls.enableMoveMode();
@@ -66,7 +66,7 @@ export class UI {
     );
     this.createButton(
       "select_mode",
-      "../assets/icons/select_mode.png",
+      "assets/icons/select_mode.png",
       "Select Mode",
       () => this.engine.controls.enableSelectMode(),
       object_control_div
@@ -74,7 +74,7 @@ export class UI {
 
     this.createButton(
       "view_3d",
-      "../assets/icons/3d_view.png",
+      "assets/icons/3d_view.png",
       "3D View",
       () => this.engine.camera.set2DMode(false),
       sidebar
@@ -82,7 +82,7 @@ export class UI {
 
     this.createButton(
       "view_2d",
-      "../assets/icons/2d_view.png",
+      "assets/icons/2d_view.png",
       "2D View",
       () => this.engine.camera.set2DMode(true),
       sidebar
@@ -97,7 +97,7 @@ export class UI {
 
     this.createButton(
       "library_button",
-      "../assets/icons/library.png",
+      "assets/icons/library.png",
       "Library",
       () => {
         document.querySelector(".library-container").classList.toggle("active");
@@ -128,7 +128,7 @@ export class UI {
   }
 
   async createLibObjects(container) {
-    const data = await this.engine.loadFile("../assets/objects.json");
+    const data = await this.engine.loadFile("assets/objects.json");
 
     data.forEach((item) => {
       // Create div element
@@ -144,7 +144,7 @@ export class UI {
       // So we change it to 'object.png'
       let imageName = item.filename.split(".").slice(0, -1).join(".") + ".png";
 
-      img.src = `../assets/objects_pics/${imageName}`;
+      img.src = `assets/objects_pics/${imageName}`;
       div.appendChild(img);
 
       // Create h4 element

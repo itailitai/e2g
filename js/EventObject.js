@@ -23,12 +23,12 @@ export class EventObject {
   loadObjects(obj_filename, num_chairs) {
     this.engine.objectsDict[this.group.name] = this;
     this.engine.loadModel(
-      "../assets/models/objects/" + obj_filename,
+      "assets/models/objects/" + obj_filename,
       (loadedTable) => {
         // Now you can use the loaded object
         this.group.add(loadedTable);
         this.engine.loadModel(
-          "../assets/models/objects/chair.glb",
+          "assets/models/objects/chair.glb",
           (loadedChair) => {
             // Now you can use the loaded object
             if (this.chairs >= 0)
