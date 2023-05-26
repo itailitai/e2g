@@ -100,62 +100,112 @@ export class Engine {
 
   StartCollisionDetection(transformControl) {
     var collidingObject = null;
+    var originalPosition = null;
+    var originalRotation = null;
+    var dragging = false;
 
-    transformControl.addEventListener("change", () => {
-      if (!transformControl.object || !this.objectsDict) return;
+    transformControl.addEventListener(
+      "dragging-changed",
+      handleDraggingChanged.bind(this)
+    );
+    transformControl.addEventListener(
+      "change",
+      handleTransformChange.bind(this)
+    );
 
-      var objects = this.objectsDict;
-      var collisionDetected = false;
+    function handleDraggingChanged(event) {
+      dragging = event.value;
 
+      if (dragging) {
+        // Store original position when dragging starts
+        originalPosition = transformControl.object.position.clone();
+        originalRotation = transformControl.object.rotation.clone();
+      } else if (collidingObject) {
+        // Revert position and restore original material if collision occurred
+        handleCollisionEnd(
+          collidingObject,
+          transformControl,
+          originalPosition,
+          originalRotation
+        );
+        collidingObject = null;
+      }
+    }
+
+    function handleTransformChange() {
+      if (!transformControl.object || !this.objectsDict || !dragging) return;
+
+      var collisionDetected = checkCollision(
+        transformControl,
+        this.objectsDict
+      );
+
+      if (collisionDetected) {
+        handleCollisionStart(collisionDetected);
+        collidingObject = collisionDetected;
+      } else if (collidingObject) {
+        handleCollisionEnd(collidingObject, transformControl, originalRotation);
+        collidingObject = null;
+      }
+    }
+
+    function checkCollision(transformControl, objectsDict) {
       var movingObjectBox = new THREE.Box3().setFromObject(
         transformControl.object
       );
-      console.log(objects);
-      console.log(Object.keys(objects).length);
 
-      for (var i = 0; i < Object.keys(objects).length; i++) {
-        const object_key = Object.keys(objects)[i];
-        console.log(object_key);
-        console.log(objects[object_key]);
-        if (objects[object_key].group !== transformControl.object) {
+      for (var i = 0; i < Object.keys(objectsDict).length; i++) {
+        const object_key = Object.keys(objectsDict)[i];
+
+        if (objectsDict[object_key].group !== transformControl.object) {
           var objectBox = new THREE.Box3().setFromObject(
-            objects[object_key].group
+            objectsDict[object_key].group
           );
-
           if (movingObjectBox.intersectsBox(objectBox)) {
-            collisionDetected = true;
-            collidingObject = objects[object_key].group;
-            break;
+            return objectsDict[object_key].group;
           }
         }
       }
+      return null;
+    }
 
-      if (collisionDetected) {
-        // Collision detected. Change all materials of all child objects.
-        collidingObject.traverse(function (child) {
-          if (child.isMesh && !child.userData.originalMaterial) {
-            child.userData.originalMaterial = child.material;
-            child.material = new THREE.MeshBasicMaterial({
-              color: 0xff0000,
-              opacity: 0.5,
-              transparent: true,
-            }); // Set new material with color red
-            transformControl.object.position.set(0, 0, 0);
-          }
-        });
-      } else if (collidingObject) {
-        // Collision no longer detected. Restore original material of all child objects.
-        collidingObject.traverse(function (child) {
-          if (child.isMesh && child.userData.originalMaterial) {
-            child.material = child.userData.originalMaterial;
-            child.userData.originalMaterial = null;
-          }
-        });
-        collidingObject = null;
+    function handleCollisionStart(object) {
+      object.traverse(function (child) {
+        if (child.isMesh && !child.userData.originalMaterial) {
+          child.userData.originalMaterial = child.material;
+          child.material = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            opacity: 0.5,
+            transparent: true,
+          });
+        }
+      });
+    }
+
+    function handleCollisionEnd(
+      object,
+      transformControl,
+      originalPosition = null,
+      originalRotation = null
+    ) {
+      if (originalPosition) {
+        // Revert to the original position
+        transformControl.object.position.copy(originalPosition);
       }
-    });
-  }
 
+      if (originalRotation) {
+        // Revert to the original position
+        transformControl.object.rotation.copy(originalRotation);
+      }
+      // Restore original material
+      object.traverse(function (child) {
+        if (child.isMesh && child.userData.originalMaterial) {
+          child.material = child.userData.originalMaterial;
+          child.userData.originalMaterial = null;
+        }
+      });
+    }
+  }
   start() {
     this.animate();
   }

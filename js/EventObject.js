@@ -31,7 +31,7 @@ export class EventObject {
           "../assets/models/objects/chair.glb",
           (loadedChair) => {
             // Now you can use the loaded object
-            if (this.chairs > 0)
+            if (this.chairs >= 0)
               this.arrangeChairsAroundTable(
                 loadedTable,
                 loadedChair,
@@ -65,9 +65,16 @@ export class EventObject {
         .querySelector(".object-context-menu")
         .parentNode.removeChild(document.querySelector(".object-context-menu"));
       this.chairs = document.querySelector("#numofchairs").value;
+      const init_pos = this.group.position;
+      const init_rot = this.group.rotation;
+
       this.reset();
 
       this.loadObjects(this.filename, parseInt(this.chairs));
+      console.log(init_pos.x, init_pos.y, init_pos.z);
+      console.log(init_rot.x, init_rot.y, init_rot.z);
+      this.group.position.set(init_pos.x, init_pos.y, init_pos.z);
+      this.group.rotation.set(init_rot.x, init_rot.y, init_rot.z);
       MicroModal.close("edit-modal");
       modalDiv.parentNode.removeChild(modalDiv);
     });
@@ -157,6 +164,7 @@ export class EventObject {
     this.engine.scene.remove(this.group);
     this.engine.scene.remove(this.chair);
     this.engine.scene.remove(this.table);
+    delete this.engine.objectsDict[this.group.name];
     this.group = new THREE.Group();
     this.group.name = this.filename.slice(0, -4);
     this.group.class = "eventGroup";

@@ -226,7 +226,7 @@ export class UI {
       "מחיקת אובייקט",
       this.engine.objectsDict[object.name]
     );
-    console.log(this.engine.objectsDict);
+
     document.body.appendChild(div);
 
     function addContextMenuButton(btn_id, btn_txt, object) {
