@@ -22,6 +22,7 @@ export class Engine {
       document.body.clientHeight
     );
     this.objectsDict = {};
+    window.objectsDict = this.objectsDict;
     this.camera = new Camera(this.scene, 16, 9, this.renderer);
     this.controls = new Controls(this, this.camera);
     console.log(this.camera);

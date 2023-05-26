@@ -1,18 +1,12 @@
 import * as THREE from "three";
-function generateRandomString(length) {
-  let result = "";
-  let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  let charactersLength = characters.length;
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
+function generateRandomString() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 export class EventObject {
   constructor(obj_filename, num_chairs, engine) {
     this.filename = obj_filename;
     this.group = new THREE.Group();
-    this.group.name = obj_filename.slice(0, -4) + generateRandomString(6);
+    this.group.name = obj_filename.slice(0, -4) + generateRandomString();
     this.group.class = "eventGroup";
     this.engine = engine;
     this.objectsArray = [];
@@ -187,8 +181,9 @@ export class EventObject {
     this.engine.scene.remove(this.chair);
     this.engine.scene.remove(this.table);
     delete this.engine.objectsDict[this.group.name];
+    const oldname = this.group.name;
     this.group = new THREE.Group();
-    this.group.name = this.filename.slice(0, -4);
+    this.group.name = oldname;
     this.group.class = "eventGroup";
   }
 }
