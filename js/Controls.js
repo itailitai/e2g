@@ -161,6 +161,11 @@ export class Controls {
       document
         .querySelector(".object-context-menu")
         .parentNode.removeChild(document.querySelector(".object-context-menu"));
+
+    if (
+      document.querySelector(".library-container").classList.contains("active")
+    )
+      document.querySelector(".library-container").classList.remove("active");
     // Check the button property to determine which button was clicked
     console.log(event.button);
     if (event.button == 0) {

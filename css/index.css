@@ -64,6 +64,8 @@ div {
   margin-top: 50px;
 }
 
+
+
 .topbar {
   position: absolute;
   top: 0;
@@ -126,12 +128,12 @@ canvas {
 
 .library-container{
   position: absolute;
-    right: -350px;
+  right: -375px;
     top: 50px;
     max-width: 375px;
     background: black;
     color: white;
-    height: 350px;
+    height: auto;
     display: flex;
     flex-flow: column;
     direction: rtl;
@@ -230,4 +232,41 @@ canvas {
   .lib-objects-container{
     justify-content: center;
   }
+  .rightsidebar{
+    right: -50px;
+    transition: .25s ease all;
+  }
+
+  .rightsidebar .burger{
+    width: 35px;
+    height: 35px;
+    position: absolute;
+    left: -40px;
+    top: 0px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3C!-- Font Awesome Pro 5.15.4 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) --%3E%3Cpath d='M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z'/%3E%3C/svg%3E");
+    background-size: cover;
+  
+  }
+
+    .rightsidebar:hover{
+      right: 0px;
+    }
+
+    .rightsidebar:hover .burger{
+      opacity: 0;
+    }
+  /* .rightsidebar::after:hover {
+    right: 5px;
+  }
+  .rightsidebar::after{
+    width: 30px;
+    height: 30px;
+    background: white;
+    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3C!-- Font Awesome Pro 5.15.4 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) --%3E%3Cpath d='M16 132h416c8.837 0 16-7.163 16-16V76c0-8.837-7.163-16-16-16H16C7.163 60 0 67.163 0 76v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16zm0 160h416c8.837 0 16-7.163 16-16v-40c0-8.837-7.163-16-16-16H16c-8.837 0-16 7.163-16 16v40c0 8.837 7.163 16 16 16z'/%3E%3C/svg%3E");
+    position: absolute;
+    left: -50px;
+    color: white;
+    filter: invert(1);
+    padding: 10px;
+  } */
 }

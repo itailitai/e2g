@@ -12,6 +12,8 @@ export class EventObject {
     this.objectsArray = [];
     this.chairs = num_chairs;
     this.loadObjects(obj_filename, num_chairs);
+    this.loadedTable;
+    this.loadedChair;
   }
 
   loadObjects(obj_filename, num_chairs) {
@@ -20,16 +22,21 @@ export class EventObject {
       "assets/models/objects/" + obj_filename,
       (loadedTable) => {
         // Now you can use the loaded object
+        this.loadedTable = loadedTable;
         this.group.add(loadedTable);
         this.engine.loadModel(
           "assets/models/objects/chair.glb",
           (loadedChair) => {
+            this.loadedChair = loadedChair;
             // Now you can use the loaded object
             if (this.chairs >= 0)
               this.arrangeChairsAroundTable(
                 loadedTable,
                 loadedChair,
-                num_chairs ? num_chairs : 0
+                num_chairs ? num_chairs : 0,
+                0.1,
+                this.engine.scene,
+                this.group
               );
             else this.engine.scene.remove(loadedChair);
           }
@@ -52,8 +59,46 @@ export class EventObject {
   objectEditWindowHandler() {
     const confirm_button = document.querySelector("#confirm_add");
     const modalDiv = document.querySelector("#edit-modal");
+    this.generatePreview(this.loadedTable, this.loadedChair, 0)
+      .then((dataUrl) => {
+        var img;
+        // Create an img element
+        if (!document.querySelector("#previewImage")) {
+          img = document.createElement("img");
+          img.id = "previewImage";
+          img.style.width = "80%";
+        } else {
+          img = document.querySelector("#previewImage");
+        }
+
+        // Set the data URL as the source of the img
+        img.src = dataUrl;
+
+        // Append the img to the body of the document
+        document
+          .querySelector("#edit-modal .modal__container")
+          .appendChild(img);
+      })
+      .catch((error) => {
+        // Handle any errors that occurred while loading the model or generating the preview
+        console.error("Error generating preview:", error);
+      });
     MicroModal.show("edit-modal");
     // const obj = new EventObject(e.dataset.filename, this);
+    document.querySelector("#numofchairs").addEventListener("change", () => {
+      this.generatePreview(
+        this.loadedTable,
+        this.loadedChair,
+        document.querySelector("#numofchairs").value
+      )
+        .then((dataUrl) => {
+          document.querySelector("#previewImage").src = dataUrl;
+        })
+        .catch((error) => {
+          // Handle any errors that occurred while loading the model or generating the preview
+          console.error("Error generating preview:", error);
+        });
+    });
     confirm_button.addEventListener("click", () => {
       document
         .querySelector(".object-context-menu")
@@ -73,7 +118,20 @@ export class EventObject {
       modalDiv.parentNode.removeChild(modalDiv);
     });
   }
-  arrangeChairsAroundTable(table, chair, numChairs, margin = 0.1) {
+
+  arrangeChairsAroundTable = (
+    table,
+    chair,
+    numChairs,
+    margin = 0.1,
+    scene = this.engine.scene,
+    group
+  ) => {
+    if (!group) {
+      console.log("test");
+      group = new THREE.Group();
+      group.add(table);
+    }
     // Calculate table and chair dimensions
     let tableBox = new THREE.Box3().setFromObject(table);
     let chairBox = new THREE.Box3().setFromObject(chair);
@@ -94,8 +152,8 @@ export class EventObject {
     let totalSpaces = 2 * (chairsPerSide[0] + chairsPerSide[1]);
 
     if (totalSpaces < numChairs) {
-      this.engine.scene.remove(chair);
-      this.engine.scene.remove(table);
+      scene.remove(chair);
+      scene.remove(table);
       Swal.fire({
         title: "Error!",
         text: "Not enough space to place all chairs!",
@@ -147,12 +205,54 @@ export class EventObject {
             (i - sideChairs[side] / 2 + 0.5) * (chairSize.z + margin);
         }
         newChair.rotation.y = orientations[side]; // Make the chair face the table
-        this.group.add(newChair);
+        console.log("added chair");
+        group.add(newChair);
       }
     }
-    this.engine.scene.add(this.group);
-    this.engine.scene.remove(chair);
+    console.log(group);
+    scene.add(group);
+    scene.remove(chair);
+  };
+
+  // Function to generate a preview jpg
+  generatePreview(table, chair, num_chairs, width = 800, height = 600) {
+    console.log("generating, num of chairs: " + num_chairs);
+    return new Promise((resolve, reject) => {
+      // Create a WebGL renderer
+      const renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+      });
+      renderer.setSize(width, height);
+
+      // Create a perspective camera
+      const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+      camera.position.z = 3; // Move the camera back so we can view the model
+      camera.position.y = 3;
+      camera.lookAt(0, 0, 0);
+
+      // Create a scene and add the model
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xaaaaaa);
+
+      // Add some basic lighting
+      scene.add(new THREE.AmbientLight(0x666666));
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(1, 1, 1);
+      scene.add(light);
+      this.arrangeChairsAroundTable(table, chair, num_chairs, 0.1, scene);
+
+      // Render the scene
+      renderer.render(scene, camera);
+
+      // Convert the rendering to a JPEG data URL
+      const dataUrl = renderer.domElement.toDataURL("image/jpeg", 0.85);
+      console.log(dataUrl);
+      // Resolve the promise with the data URL
+      resolve(dataUrl);
+    });
   }
+
   duplicate() {
     if (document.querySelector(".object-context-menu"))
       document
