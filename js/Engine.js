@@ -106,7 +106,7 @@ export class Engine {
   }
 
   StartCollisionDetection(transformControl) {
-    var collidingObject = null;
+    var collidingObjects = []; // Store all collided objects
     var originalPosition = null;
     var originalRotation = null;
     var dragging = false;
@@ -133,13 +133,13 @@ export class Engine {
         // Store original position and rotation when dragging starts
         originalPosition = transformControl.object.position.clone();
         originalRotation = transformControl.object.rotation.clone();
-      } else if (collidingObject) {
-        // Always reset material
-        resetMaterial(collidingObject);
+      } else if (collidingObjects.length > 0) {
+        // Always reset materials for all collided objects
+        resetMaterials(collidingObjects);
 
         // Reset position and rotation only when not dragging
         resetTransform(transformControl, originalPosition, originalRotation);
-        collidingObject = null;
+        collidingObjects = [];
       }
     }
 
@@ -153,16 +153,16 @@ export class Engine {
 
       if (collisionDetected) {
         handleCollisionStart(collisionDetected);
-        collidingObject = collisionDetected;
-      } else if (collidingObject) {
-        // Always reset material
-        resetMaterial(collidingObject);
+        collidingObjects.push(collisionDetected); // Store the collided object
+      } else if (collidingObjects.length > 0) {
+        // Always reset materials for all collided objects
+        resetMaterials(collidingObjects);
 
         // Reset position and rotation only when not dragging
         if (!dragging) {
           resetTransform(transformControl, originalPosition, originalRotation);
         }
-        collidingObject = null;
+        collidingObjects = [];
       }
     }
 
@@ -199,13 +199,14 @@ export class Engine {
       });
     }
 
-    function resetMaterial(object) {
-      // Restore original material
-      object.traverse(function (child) {
-        if (child.isMesh && child.userData.originalMaterial) {
-          child.material = child.userData.originalMaterial;
-          child.userData.originalMaterial = null;
-        }
+    function resetMaterials(objects) {
+      objects.forEach(function (object) {
+        object.traverse(function (child) {
+          if (child.isMesh && child.userData.originalMaterial) {
+            child.material = child.userData.originalMaterial;
+            child.userData.originalMaterial = null;
+          }
+        });
       });
     }
 
@@ -225,6 +226,7 @@ export class Engine {
       }
     }
   }
+
   start() {
     this.animate();
   }

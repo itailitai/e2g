@@ -162,9 +162,10 @@ export class Controls {
         .querySelector(".object-context-menu")
         .parentNode.removeChild(document.querySelector(".object-context-menu"));
     // Check the button property to determine which button was clicked
-    if (event.button && event.button === 0) {
-      // Left click
-    } else if ((event.button && event.button === 2) || event.clientX) {
+    console.log(event.button);
+    if (event.button == 0) {
+      return;
+    } else if (event.button == 2 || event.clientX) {
       // Right click
       // if(!event.button){
       //   this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
